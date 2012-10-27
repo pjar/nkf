@@ -1,3 +1,6 @@
+*.txt
+*.txt2
+errors.log
 *.rbc
 *.sassc
 .sass-cache

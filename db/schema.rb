@@ -11,6 +11,33 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 0) do
+ActiveRecord::Schema.define(:version => 20121020195017) do
+
+  create_table "firmas", :force => true do |t|
+    t.string   "nazwa"
+    t.text     "adres"
+    t.string   "tel"
+    t.string   "fax"
+    t.string   "link"
+    t.text     "description"
+    t.string   "website"
+    t.integer  "kategoria_id"
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+    t.string   "logo_url"
+    t.string   "uniq_id"
+    t.string   "sub_kategoria"
+    t.string   "email"
+  end
+
+  add_index "firmas", ["kategoria_id"], :name => "index_firmas_on_kategoria_id"
+  add_index "firmas", ["uniq_id"], :name => "index_firmas_on_uniq_id"
+
+  create_table "kategoria", :force => true do |t|
+    t.string   "nazwa"
+    t.boolean  "glowna"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
 
 end
