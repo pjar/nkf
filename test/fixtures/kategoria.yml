@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  nazwa: MyString
+  glowna: false
+
+two:
+  nazwa: MyString
+  glowna: false
