@@ -7,6 +7,7 @@ gem 'rails', '3.2.8'
 
 gem 'mechanize'
 gem 'mysql2'
+gem 'pg' #for heroku
 gem 'haml'
 gem 'devise'
 gem 'simple_form'
