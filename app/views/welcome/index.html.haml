@@ -1,0 +1,23 @@
+#main-content.span10
+  #main-content-container
+    - Kategoria.all.each do |kategoria|
+      .category-piece-container
+        .category-piece
+          %h3
+            %a{ href: "" }
+              = kategoria.nazwa
+          %span.sub-category
+            %a{ href: "" }
+              Warszawa
+          %span.sub-category
+            %a{ href: "" }
+              Gorące Tematy
+          %span.sub-category
+            %a{ href: "" }
+              Prognoza Pogody
+          %span.sub-category
+            %a{ href: "" }
+              Świat
+          %span.sub-category
+            %a{ href: "" }
+              Kraj

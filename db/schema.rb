@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121020195017) do
+ActiveRecord::Schema.define(:version => 20121028135130) do
 
   create_table "firmas", :force => true do |t|
     t.string   "nazwa"
@@ -22,14 +22,16 @@ ActiveRecord::Schema.define(:version => 20121020195017) do
     t.text     "description"
     t.string   "website"
     t.integer  "kategoria_id"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
     t.string   "logo_url"
     t.string   "uniq_id"
     t.string   "sub_kategoria"
     t.string   "email"
+    t.integer  "pod_kategoria_id"
   end
 
+  add_index "firmas", ["adres"], :name => "index_firmas_on_adres", :length => {"adres"=>128}
   add_index "firmas", ["kategoria_id"], :name => "index_firmas_on_kategoria_id"
   add_index "firmas", ["uniq_id"], :name => "index_firmas_on_uniq_id"
 
@@ -39,5 +41,21 @@ ActiveRecord::Schema.define(:version => 20121020195017) do
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
+
+  create_table "kategoria_pod_kategoria", :id => false, :force => true do |t|
+    t.integer "kategoria_id"
+    t.integer "pod_kategoria_id"
+  end
+
+  create_table "pod_kategoria", :force => true do |t|
+    t.string   "nazwa"
+    t.integer  "liczba_firm"
+    t.integer  "kategoria_id"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "pod_kategoria", ["kategoria_id"], :name => "index_pod_kategoria_on_kategoria_id"
+  add_index "pod_kategoria", ["nazwa"], :name => "index_pod_kategoria_on_nazwa", :length => {"nazwa"=>128}
 
 end

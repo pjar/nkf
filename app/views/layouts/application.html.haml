@@ -1,0 +1,28 @@
+!!!
+%html{:lang => "pl"}
+  %head
+    %title Nowy Katalog Stron
+    %META{:CONTENT => "text/html; charset=iso-8859-2", "HTTP-EQUIV" => "content-type"}
+    = stylesheet_link_tag "application", media: "all"
+    = csrf_meta_tags
+  %body
+    #background-effect
+      #logo-bar
+        #gradients
+        #shadow
+        .container
+          %h1 NOWY KATALOG FIRM
+    #heading.row
+    .container
+      .row
+        #sidebar.span3
+          / Sidebar content
+          %ul#navigation-menu
+            - Kategoria.all.each do |kategoria|
+              %li
+                %a{:href => ""}
+                  %span{:style => "width: 100%;"}
+                    = kategoria.nazwa
+        = yield
+
+  = javascript_include_tag "application"
