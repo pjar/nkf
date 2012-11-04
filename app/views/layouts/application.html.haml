@@ -18,11 +18,11 @@
         #sidebar.span3
           / Sidebar content
           %ul#navigation-menu
-            - Kategoria.all.each do |kategoria|
+            - Category.all.each do |category|
               %li
                 %a{:href => ""}
                   %span{:style => "width: 100%;"}
-                    = kategoria.nazwa
+                    = category.name
         = yield
 
   = javascript_include_tag "application"

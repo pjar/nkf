@@ -2,72 +2,74 @@ require 'rake'
 
 namespace :import do
   desc "Import new companies to the db"
-  task :kategorias => :environment do
-    stara_ilosc = Kategoria.count
-    kategorie = []
+  task :categories => :environment do
+    old_count = Category.count
+    categories = []
     File.open("#{ENV['path']}/kategorie.txt","r") do |f|
-      kategorie = JSON.parse f.gets
+      categories = JSON.parse f.gets
     end
-    puts "Tworze kategorie glowne:"
-    kategorie.each do |kategoria|
-      p kategoria['name']
-      Kategoria.create(nazwa: kategoria["name"], glowna: true)
+    puts "Creating main categories"
+    categories.each do |category|
+      p category['name']
+      Category.create(name: category["name"], main: true)
       puts "ok"
     end
-    puts "Stworzono: #{Kategoria.count - stara_ilosc}"
+    puts "Stworzono: #{Category.count - old_count}"
   end
 
-  task :podkategorias => :environment do
-    Kategoria.all.each do |kat|
-      root_dir = "#{ENV['path']}/#{kat.nazwa}"
+  task :sub_categories => :environment do
+    Category.all.each do |cat|
+      root_dir = "#{ENV['path']}/#{cat.name}"
       Dir.foreach(root_dir) do |item|
         next if item == "." or item == ".."
-        nazwa = item.split('.txt').first
-        pod_kat = PodKategoria.find_by_nazwa(nazwa)
-        if pod_kat
-          kat.pod_kategorias.push(pod_kat)
+        name = item.split('.txt').first
+        sub_cat = SubCategory.find_by_name(name)
+        if sub_cat
+          cat.sub_categories.push(sub_cat)
         else
-          kat.pod_kategorias.create(nazwa: nazwa)
+          cat.sub_categories.create(name: name)
         end
-        puts "Stworzono #{kat.nazwa} => #{kat.pod_kategorias.last.nazwa}"
+        puts "Stworzono #{cat.name} => #{cat.sub_categories.last.name}"
       end
     end
   end
 
-  task :firmas => :environment do
+  task :companies => :environment do
     counter = 0
     left = 0
     big_counter = 0
-    Kategoria.all.each do |kat|
-      counter += Dir.glob("#{ENV['path']}/#{kat.nazwa}/*").size
+    Category.all.each do |cat|
+      counter += Dir.glob("#{ENV['path']}/#{cat.name}/*").size
     end
-    Kategoria.all.each do |kategoria|
-      root_dir = "#{ENV['path']}/#{kategoria.nazwa}"
+    Category.all.each do |category|
+      root_dir = "#{ENV['path']}/#{category.name}"
       Dir.foreach(root_dir) do |item|
         next if item == "." or item == ".."
         left +=  1
         puts
         puts "#{left} / #{counter}"
         puts
-        firmy_json = []
+        companies_json = []
         File.open("#{root_dir}/#{item}","r") do |f|
-          firmy_json = JSON.parse f.gets
+          companies_json = JSON.parse f.gets
         end
-        left_firmy = 0
-        firmy_ilosc = firmy_json.size
-        firmy_json.each do |fj|
-          fj = JSON.parse fj
-          fj['sub_kategoria'] = "#{kategoria.nazwa}/#{item.split('.txt').first}"
-          fj['adres'] = ["unknown",'unknown'] if fj['adres'].empty?
-          uniq_id = fj['uniq_id'] = fj['nazwa']+"-"+fj['adres'][0]+"-"+fj['sub_kategoria']
-          if !Firma.find_by_uniq_id(uniq_id)
-            fj['adres'] = fj['adres'].join(";")
-            nowa_firma = Firma.create(fj)#:nazwa => fj['nazwa'][1, fj['nazwa'].length-1], :adres => fj['adres'], :tel   => fj['tel'], :fax   => fj['fax'], :link  => fj['link'], :description => fj['description'], :website => fj['website'])
-            nowa_firma.update_attribute("nazwa",nowa_firma.nazwa[1, nowa_firma.nazwa.length-1])
-            nowa_firma.update_attribute("kategoria_id", kategoria.id)
-            left_firmy += 1
+        left_companies = 0
+        companies_count = companies_json.size
+        companies_json.each do |cj|
+          cj = JSON.parse cj
+          cj['sub_kategoria'] = "#{category.name}/#{item.split('.txt').first}"
+          cj['adres'] = ["unknown",'unknown'] if cj['adres'].empty?
+          uniq_id = cj['uniq_id'] = cj['name']+"-"+cj['adres'][0]+"-"+cj['sub_kategoria']
+          if !Company.find_by_uniq_id(uniq_id)
+            cj['address'] = cj['adres'].join(";")
+            #nowa_firma.update_attribute("name",nowa_firma.name
+            cj.merge!(name: cj['name'][1, nowa_firma.name.length-1])
+            #nowa_firma.update_attribute("category_id", category.id)
+            cj.merge!(category_id: category.id)
+            Company.create(cj)
+            left_companies += 1
             big_counter += 1
-            puts "#{firmy_ilosc - left_firmy}                  #{big_counter}"
+            puts "#{companies_count - left_companies}                  #{big_counter}"
           else
             puts "D U P L I C A T E"
           end
@@ -158,8 +160,8 @@ namespace :import do
     emails_list = emails_list - already_checked
     pozostalo = emails_list.size
     puts "Usunieto z listy do sprawdzenia wszystkie utworzone dotad firm. Pozostalo: #{pozostalo}"
-    kategoria = Kategoria.find(ENV['kat_index'].to_i)
-    root_dir = "#{ENV['path']}/#{kategoria.nazwa}"
+    kategoria = Category.find(ENV['kat_index'].to_i)
+    root_dir = "#{ENV['path']}/#{kategoria.name}"
     Dir.foreach(root_dir) do |item|
       next if item == "." or item == ".."
       counter += 0
@@ -173,9 +175,9 @@ namespace :import do
       end
       firmy_json.each do |fj|
         fj = JSON.parse fj
-        fj['sub_kategoria'] = "#{kategoria.nazwa}/#{item.split('.txt').first}"
+        fj['sub_kategoria'] = "#{kategoria.name}/#{item.split('.txt').first}"
         fj['adres'] = ["unknown",'unknown'] if fj['adres'].empty?
-        uniq_id = fj['uniq_id'] = fj['nazwa']+"-"+fj['adres'][0]+"-"+fj['sub_kategoria']
+        uniq_id = fj['uniq_id'] = fj['name']+"-"+fj['adres'][0]+"-"+fj['sub_kategoria']
         firma_with_email = emails_list.detect{ |el| el.split("**").first == uniq_id }
         added_firmas = ""
         if File.file?(Dir::pwd+"/added_firmas.txt")
@@ -185,11 +187,11 @@ namespace :import do
         end
         if firma_with_email && !added_firmas.include?(uniq_id)
           fj['adres'] = fj['adres'].join(";")
-          nowa_firma = Firma.create(fj)#:nazwa => fj['nazwa'][1, fj['nazwa'].length-1], :adres => fj['adres'], :tel   => fj['tel'], :fax   => fj['fax'], :link  => fj['link'], :description => fj['description'], :website => fj['website'])
-          nowa_firma.update_attribute("nazwa",nowa_firma.nazwa[1, nowa_firma.nazwa.length-1])
+          nowa_firma = Firma.create(fj)#:name => fj['name'][1, fj['name'].length-1], :adres => fj['adres'], :tel   => fj['tel'], :fax   => fj['fax'], :link  => fj['link'], :description => fj['description'], :website => fj['website'])
+          nowa_firma.update_attribute("name",nowa_firma.name[1, nowa_firma.name.length-1])
           nowa_firma.update_attribute("kategoria_id", kategoria.id)
           nowa_firma.update_attribute("email", firma_with_email.split("**").last)
-          nowa_firma.update_attribute("pod_kategoria_id", PodKategoria.find_by_nazwa(firma_with_email.split("**").first.split("/").last).id)
+          nowa_firma.update_attribute("pod_kategoria_id", SubCategory.find_by_nazwa(firma_with_email.split("**").first.split("/").last).id)
           puts firma_with_email.split("**").first.split("/").last
           emails_list.delete(firma_with_email)
           File.open(Dir::pwd+"/added_firmas.txt","a+") do |f|

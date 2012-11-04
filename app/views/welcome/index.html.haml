@@ -1,12 +1,12 @@
 #main-content.span10
   #main-content-container
-    - Kategoria.all.each do |kategoria|
+    - Category.all.each do |category|
       .category-piece-container
         .category-piece
           %h3
             %a{ href: "" }
-              = kategoria.nazwa
-          - kategoria.pod_kategorias.order("liczba_firm DESC").limit(5).each do |podkategoria|
+              = category.name
+          - category.sub_categories.order("companies_count DESC").limit(5).each do |sub_category|
             %span.sub-category
               %a{ href: "" }
-                = podkategoria.nazwa
+                = sub_category.name
