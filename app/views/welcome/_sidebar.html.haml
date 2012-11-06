@@ -1,0 +1,8 @@
+- content_for :sidebar do
+  #sidebar.span3
+    %ul#navigation-menu
+      - @main_categories.all.each do |category|
+        %li
+          %a{:href => ""}
+            %span{:style => "width: 100%;"}
+              = category.name

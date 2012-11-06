@@ -15,14 +15,7 @@
     #heading.row
     .container
       .row
-        #sidebar.span3
-          / Sidebar content
-          %ul#navigation-menu
-            - Category.all.each do |category|
-              %li
-                %a{:href => ""}
-                  %span{:style => "width: 100%;"}
-                    = category.name
+        = yield :sidebar
         = yield
 
   = javascript_include_tag "application"

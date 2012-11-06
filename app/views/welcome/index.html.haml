@@ -1,6 +1,7 @@
+= render 'sidebar'
 #main-content.span10
   #main-content-container
-    - Category.all.each do |category|
+    - @main_categories.all.each do |category|
       .category-piece-container
         .category-piece
           %h3
@@ -9,4 +10,4 @@
           - category.sub_categories.order("companies_count DESC").limit(5).each do |sub_category|
             %span.sub-category
               %a{ href: "" }
-                = sub_category.name
+                = sub_category.name.truncate(20, omission: '', separator: ' ')
